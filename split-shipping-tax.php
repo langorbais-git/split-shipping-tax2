@@ -53,8 +53,8 @@ namespace Example;
 			// Add actions
 			private function addActions() {
 				
-				add_action( 'woocommerce_after_get_rates_for_package', [$this, 'get_rates_for_package'], 10, 2 );
-				add_action( 'woocommerce_cart_calculate_fees', [$this, 'woo_add_cart_fee'],  10, 1);
+				add_action( 'woocommerce_after_get_rates_for_package', [$this, 'get_rates_for_package'], 99, 2 );
+				add_action( 'woocommerce_cart_calculate_fees', [$this, 'woo_add_cart_fee'],  99, 1);
 
 			}
 
@@ -104,11 +104,21 @@ namespace Example;
 				  
 
 			private function addFilters() {
-				add_filter( 'woocommerce_cart_get_taxes', [ $this, 'reorder_taxes' ], 10, 2 );
+				add_filter( 'woocommerce_package_rates', [$this, 'selected_shipping_methods'], 1, 2 ); 
+				add_filter( 'woocommerce_cart_get_taxes', [ $this, 'reorder_taxes' ], 999, 2 );
 			}
 
+			public function selected_shipping_methods($rates, $package) {
+
+				$chosen_methods = WC()->session->get( "chosen_shipping_methods" );
+				$chosen_shipping = $chosen_methods[0];
+
+				return $rates;
+			}	
 
 			public function reorder_taxes( $taxes, $cart ) {
+				
+
 				
 				$this->woo_add_cart_fee();
 
